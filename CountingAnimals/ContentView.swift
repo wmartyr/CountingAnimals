@@ -13,7 +13,7 @@ struct ContentView: View {
     @State private var gridSize = 6
     @State private var chosenAnimals: [String] = []
     @State private var finalAnimalList: [Animal] = [Animal(animal: "")]
-    private let adaptiveColumn = [GridItem(.adaptive(minimum: 100))]
+    private let adaptiveColumn = [GridItem(.adaptive(minimum: 100, maximum: 120))]
     
     struct Animal {
         let id = UUID()
@@ -49,19 +49,27 @@ struct ContentView: View {
                     }
                     .padding(10)
                     ForEach(numberChoices, id: \.self) { choice in
-                        Button {
-                            print("Button \(choice) tapped")
-                        }label: {
-                            Text("\(choice)")
-                                .font(.largeTitle)
-                                .padding()
+                        Button(String(choice)) {
+                            print("Button \(animal)-\(choice) tapped")
                         }
-                        .buttonStyle(.borderedProminent)
-
+                        .padding(10)
+                        .frame(width: 70, height: 70)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .background(Color.blue)
+                        .foregroundStyle(.white)
+                        .cornerRadius(10)
+//                        }label: {
+//                            Text("\(choice)")
+//                                .font(.largeTitle)
+//                                .padding()
+//                        }
+//                        .buttonStyle(.borderedProminent)
                     }
                 }
             }
             .frame(width: .infinity)
+            Spacer()
         }
     }
     

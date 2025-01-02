@@ -11,8 +11,9 @@ struct ContentView: View {
     @State private var animals = ["bear", "buffalo", "chick", "chicken", "cow", "crocodile", "dog", "duck", "elephant", "frog", "giraffe", "goat", "gorilla", "hippo", "horse", "monkey", "moose", "narwhal", "owl", "panda", "parrot", "penguin", "pig", "rabbit", "rhino", "sloth", "snake", "walrus", "whale", "zebra"]
     @State private var numberOfAnimals = 3
     @State private var gridSize = 6
-    @State private var chosenAnimals: [String] = []
+    @State private var chosenAnimals = [String]()
     @State private var finalAnimalList: [Animal] = [Animal(animal: "")]
+    @State private var correctAnswersList = ["bear": 0]
     private let adaptiveColumn = [GridItem(.adaptive(minimum: 100, maximum: 120))]
     
     struct Animal {
@@ -38,6 +39,7 @@ struct ContentView: View {
             Spacer()
             ForEach(chosenAnimals, id: \.self) { animal in
                 let numberChoices = generateChoicesIncludingCorrectNumber(animal: animal)
+                
                 HStack {
                     VStack {
                         Image(animal)
@@ -59,12 +61,6 @@ struct ContentView: View {
                         .background(Color.blue)
                         .foregroundStyle(.white)
                         .cornerRadius(10)
-//                        }label: {
-//                            Text("\(choice)")
-//                                .font(.largeTitle)
-//                                .padding()
-//                        }
-//                        .buttonStyle(.borderedProminent)
                     }
                 }
             }
@@ -82,16 +78,14 @@ struct ContentView: View {
     }
     
     func initialSetup() {
-        print("initial setup")
         chosenAnimals = Array(animals.shuffled().prefix(numberOfAnimals))
         finalAnimalList = animalDisplayGridList(gridSize)
-        print("choosenAnimals: \(chosenAnimals)")
-        print("finalAnimalList: \(finalAnimalList)")
+        correctAnswersList = generateAnswersDictionary(finalAnimalList: finalAnimalList)
     }
     
     func generateChoicesIncludingCorrectNumber(animal: String) -> [Int] {
-        print("Run generateChoicesIncludingCorrectNumber")
-        let count = finalAnimalList.filter { $0.animal == animal }.count
+//        let count = finalAnimalList.filter { $0.animal == animal }.count
+        let count = correctAnswersList[animal] ?? 0
         var choices: [Int] = [count]
         var choice = 0
         for _ in 0...1 {
@@ -101,11 +95,17 @@ struct ContentView: View {
             }
             choices.append(choice)
         }
-        print("animal: \(animal)")
-        print("count: \(count)")
         let finalChoices = choices.shuffled()
-        print("finalChoices: \(finalChoices)")
         return finalChoices
+    }
+    
+    func generateAnswersDictionary(finalAnimalList: [Animal]) -> [String: Int]{
+        var ansList: [String: Int] = [:]
+        for chosenAnimal in chosenAnimals {
+            let count = finalAnimalList.filter { $0.animal == chosenAnimal}.count
+            ansList[chosenAnimal] = count
+        }
+        return ansList
     }
 }
 

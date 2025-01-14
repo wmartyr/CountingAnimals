@@ -12,12 +12,12 @@ struct ContentView: View {
     @State private var numberOfAnimals = 3
     @State private var gridSize = 6
     @State private var chosenAnimals = [String]()
-//    @State private var animalNumberChoices: [String: [Int]] = [:]
     @State private var finalAnimalList: [Animal] = [Animal(animal: "")]
     @State private var correctAnswersList = ["bear": 0]
     @State private var answerIsCorrect = false
-    @State private var buttonPressed = false
+    @State private var buttonChosen = ""
     @State private var choicesList: [String: [Int]] = [:]
+    @State private var buttonChosenList: [String] = []
     private let adaptiveColumn = [GridItem(.adaptive(minimum: 100, maximum: 120))]
     
     struct Animal {
@@ -53,10 +53,13 @@ struct ContentView: View {
                     }
                     .padding(10)
                     ForEach(choicesList[animal] ?? [], id: \.self) { choice in
+                        let buttonID = "\(animal)-\(choice)"
+                        var buttonPressed = buttonChosenList.contains(buttonID)
                         Button(String(choice)) {
                             withAnimation {
                                 answerIsCorrect = isAnswerCorrect(animalPicked: animal, numberPicked: choice)
-                                buttonPressed = true
+                                buttonChosen = "\(animal)-\(choice)"
+                                buttonChosenList.append(buttonChosen)
                                 print("Answer is \(answerIsCorrect)")
                             }
                         }
@@ -64,7 +67,7 @@ struct ContentView: View {
                         .frame(width: 70, height: 70)
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .background(buttonPressed ? correctAnswersList[animal] == choice ? Color.green : Color.red : Color.blue)
+                        .background(buttonChosen == buttonID || buttonPressed ? correctAnswersList[animal] == choice ? Color.green : Color.red : Color.blue)
                         .foregroundStyle(.white)
                         .cornerRadius(10)
                     }
@@ -90,24 +93,16 @@ struct ContentView: View {
         choicesList = generateChoicesIncludingCorrectNumber(correctAnswersList: correctAnswersList)
     }
     
-//    func generateChoicesIncludingCorrectNumber(animal: String) -> [Int] {
-//        print("Generate choices for \(animal)")
-//        let count = correctAnswersList[animal] ?? 0
-//        var choices: [Int] = [count]
-//        var choice = 0
-//        for _ in 0...1 {
-//            choice = Int.random(in: 0...6)
-//            while choices.contains(choice) {
-//                choice = Int.random(in: 0...6)
-//            }
-//            choices.append(choice)
-//        }
-//        let finalChoices = choices.shuffled()
-//        return choices.shuffled()
-//    }
+    func generateAnswersDictionary(finalAnimalList: [Animal]) -> [String: Int]{
+        var ansList: [String: Int] = [:]
+        for chosenAnimal in chosenAnimals {
+            let count = finalAnimalList.filter { $0.animal == chosenAnimal}.count
+            ansList[chosenAnimal] = count
+        }
+        return ansList
+    }
     
     func generateChoicesIncludingCorrectNumber(correctAnswersList: [String: Int]) -> [String: [Int]] {
-        print("Generate choices")
         var finalList: [String: [Int]] = [:]
         
         for (chosenAnimal, correctAnswer) in correctAnswersList {
@@ -121,18 +116,9 @@ struct ContentView: View {
             }
             finalList[chosenAnimal] = choices.shuffled()
         }
-        print(finalList)
         return finalList
     }
     
-    func generateAnswersDictionary(finalAnimalList: [Animal]) -> [String: Int]{
-        var ansList: [String: Int] = [:]
-        for chosenAnimal in chosenAnimals {
-            let count = finalAnimalList.filter { $0.animal == chosenAnimal}.count
-            ansList[chosenAnimal] = count
-        }
-        return ansList
-    }
     
     func isAnswerCorrect(animalPicked: String, numberPicked: Int) -> Bool {
         return correctAnswersList[animalPicked] == numberPicked
